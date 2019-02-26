@@ -1,5 +1,16 @@
 from sklearn.metrics import r2_score, mean_absolute_error, f1_score, accuracy_score
 
+def calc_features_shift(data, look_back=7, fee=0):
+    AdjClose = data['Adj Close']
+    #data['OverNightReturn'] = data['Adj Close'].shift(1)/data['Open'] - 1.0
+    data['Change'] = (data['Close']-data['Open']).map(lambda x: 1 if x>fee else 0)
+    for i in range(1, look_back+1):
+        if i < 7 or i % 20 == 0:
+            data['Return' + str(i) + 'd'] = data['Adj Close'].shift(i)/data['Open'] - 1.0
+        if i == 120:
+            data['dev_'+str(i)+'d'] = deviation_from_mean(AdjClose, i).shift(1)
+    return data
+
 # calculate features
 def calc_features_new(data, look_back=1, fee=0):
     days = 120
@@ -8,10 +19,10 @@ def calc_features_new(data, look_back=1, fee=0):
     data['Change'] = (data['Close']-data['Open']).map(lambda x: 1 if x>fee else 0)
     data['OverNightReturn'] = data['Open']/data['Close'].shift(1) - 1.0
     for i in range(1,look_back+1):
-        if i < 10 or i % 20 == 0:
-            data['Change_'+str(i)+'d'] = data['Change'].shift(i)
-            data['daily_return_'+str(i)+'d'] = calc_trailing_daily_return(data['Adj Close'], i) 
-        if i % 20 == 0:
+        #if i < 10 or i % 20 == 0:
+            #data['Change_'+str(i)+'d'] = data['Change'].shift(i)
+            #data['daily_return_'+str(i)+'d'] = calc_trailing_daily_return(data['Adj Close'], i) 
+        if i == 20 or i == 120 or i == 240:
             data['momentum_'+str(i)+'d'] = calc_momentum(AdjClose, i).shift(1)
             data['dev_'+str(i)+'d'] = deviation_from_mean(AdjClose, i).shift(1)
             data['dev_vol_'+str(i)+'d'] = deviation_from_mean(Volume, i).shift(1)
