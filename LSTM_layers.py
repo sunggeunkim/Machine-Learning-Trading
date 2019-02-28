@@ -5,7 +5,7 @@ from keras import regularizers
 
 class LSTM_keras:
 
-    def __init__(self, input_shape, nodes = [50, 50], l2 = 0.001):
+    def __init__(self, input_shape, nodes = [50, 50], l2 = 0.001, activation = 'sigmoid', loss = 'binary_crossentropy'):
         # Initialising the RNN
         self.clf = Sequential()
 
@@ -26,10 +26,10 @@ class LSTM_keras:
 
 
         # Adding the output layer
-        self.clf.add(Dense(units = 1, activation="sigmoid"))
+        self.clf.add(Dense(units = 1, activation = activation))
 
         # Compiling the RNN
-        self.clf.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics=['accuracy'])
+        self.clf.compile(optimizer = 'adam', loss = loss, metrics=['accuracy'])
 
     def train(self, X_train, y_train, val_portion = 0.2, n_epochs = 100, n_batch = 32):
         # Fitting the RNN to the Training set

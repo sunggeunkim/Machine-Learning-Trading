@@ -25,11 +25,19 @@ def plot_feature_importances(model_name, importances, feature_names, num_feature
 def rolling_mean(df, length):
     return df.rolling(window=length, center=False).mean()
 
+def calc_features_reg(data, look_back=7, fee=0):
+    for i in range(look_back, 0, -1):
+        data['Open' + str(i) + 'd'] = data['Open'].shift(i)
+        data['Close' + str(i) + 'd'] = data['Adj Close'].shift(i)
+    data['Open0d'] = data['Open']
+    return data
+
 def calc_features_seq(data, look_back=7, fee=0):
     AdjClose = data['Adj Close']
     data['Change'] = (data['Close']-data['Open']).map(lambda x: 1 if x>fee else 0)
     for i in range(look_back, 0, -1):
         data['Change' + str(i) + 'd'] = 100 * data['Close'].shift(i)/data['Open'].shift(i) - 100.0
+        data['Overnight_Change' + str(i) + 'd'] = 100 * data['Open']/data['Close'].shift(i) - 100.0
     return data
 
 def calc_features_shift(data, look_back=7, fee=0):
